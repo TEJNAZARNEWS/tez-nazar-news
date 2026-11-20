@@ -1,12 +1,63 @@
-
 <!doctype html>
-<html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#d60000"><title>तेज़ नज़र न्यूज़ | TEZ NAZAR NEWS</title><style>
-:root{font-family:system-ui,'Noto Sans Devanagari',sans-serif;color:#202634;background:#f0f2f6}*{box-sizing:border-box}body{margin:0}header{background:#d90000;color:white;text-align:center;padding:26px 12px 30px}header h1{font-size:clamp(30px,7vw,44px);margin:0 0 10px}header p{margin:0;font-size:17px}.wrap{max-width:760px;margin:auto;padding:22px 16px 45px}.nav{display:grid;gap:13px;margin-bottom:23px}.nav button{background:#f00000;color:white;border:0;border-radius:17px;padding:21px 12px;font-size:clamp(22px,5.4vw,29px);font-weight:750;cursor:pointer;min-height:76px}.nav button:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #1675e8;outline-offset:2px}.panel{background:white;border-radius:18px;padding:22px;margin:0 0 18px;box-shadow:0 2px 12px #10182809}.panel h2{font-size:26px;margin:0 0 14px}.muted{color:#606875;font-size:14px;line-height:1.6}label{display:block;font-weight:650;margin:17px 0 7px}input,textarea{width:100%;border:1px solid #aeb5be;border-radius:10px;padding:13px;font:inherit;background:white;color:#202634}textarea{min-height:120px;resize:vertical}.primary,.secondary,.danger{border:0;border-radius:10px;padding:13px 18px;font:inherit;font-weight:700;cursor:pointer;margin-top:16px}.primary{background:#d90000;color:white}.secondary{background:#e9edf4;color:#202634}.danger{background:#fff0f0;color:#a60000}.hide{display:none!important}.status{margin-top:14px;font-weight:600}.story{border-top:1px solid #e2e5e9;padding:17px 0}.story h3{margin:4px 0}.story img{max-width:100%;max-height:340px;object-fit:contain;border-radius:9px}.story p{white-space:pre-wrap;line-height:1.65}.pill{display:inline-block;background:#ffe7e7;color:#b90000;border-radius:20px;padding:3px 10px;font-size:12px}.actions{display:flex;flex-wrap:wrap;gap:8px}.actions button{margin-top:8px}footer{text-align:center;color:#6a7280;padding:14px;font-size:13px}
-</style></head><body><header><h1>तेज़ नज़र न्यूज़</h1><p>TEZ NAZAR NEWS • डिजिटल न्यूज़ प्लेटफॉर्म</p></header><main class="wrap"><nav class="nav" aria-label="मुख्य मेन्यू"><button type="button" data-page="news">📰 न्यूज़ देखें</button><button type="button" data-page="login">👤 रिपोर्टर लॉगिन</button><button type="button" data-page="submit">📢 खबर भेजें</button></nav>
-<section class="panel" id="news"><h2>ताज़ा खबरें</h2><p class="muted">यहाँ इस ब्राउज़र में प्रकाशित खबरें दिखाई देंगी।</p><div id="stories"></div></section>
-<section class="panel hide" id="login"><h2>रिपोर्टर लॉगिन</h2><p class="muted">पहली बार अपना रिपोर्टर नाम और पासवर्ड बनाइए। अगली बार इसी जानकारी से लॉगिन करें। यह केवल इस ब्राउज़र के लिए डेमो लॉगिन है।</p><form id="loginForm"><label for="username">रिपोर्टर का नाम</label><input id="username" required autocomplete="username" minlength="3"><label for="password">पासवर्ड (कम से कम 6 अक्षर)</label><input id="password" type="password" required minlength="6" autocomplete="current-password"><button class="primary" type="submit">अकाउंट बनाएँ / लॉगिन करें</button></form><div id="session" class="status" aria-live="polite"></div><button class="secondary hide" id="logout" type="button">लॉगआउट</button></section>
-<section class="panel hide" id="submit"><h2>खबर भेजें</h2><p class="muted">खबर सेव करने के बाद रिपोर्टर लॉगिन करके उसे प्रकाशित कर सकते हैं। यह डेमो केवल इसी ब्राउज़र में सेव होता है; अन्य लोगों को ऑनलाइन नहीं दिखेगा।</p><form id="storyForm"><label for="author">नाम</label><input id="author" required maxlength="90"><label for="headline">खबर का शीर्षक</label><input id="headline" required maxlength="180"><label for="place">स्थान</label><input id="place" required maxlength="100"><label for="detail">पूरी खबर</label><textarea id="detail" required maxlength="10000"></textarea><label for="photo">फोटो (वैकल्पिक, अधिकतम 1 MB)</label><input id="photo" type="file" accept="image/*"><button class="primary" type="submit">खबर सेव करें</button></form><div class="status" id="submitStatus" aria-live="polite"></div></section>
-<section class="panel hide" id="review"><h2>रिपोर्टर पैनल</h2><p class="muted">लॉगिन के बाद भेजी गई खबरें जाँचें और प्रकाशित करें।</p><div id="pending"></div></section></main><footer>© <span id="year"></span> TEZ NAZAR NEWS • स्थानीय डेमो वेबसाइट</footer><script>
-(()=>{'use strict';const $=id=>document.getElementById(id),KEY='tnn_stories_v1',USER='tnn_user_v1';let signedIn=false;const read=()=>{try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(v)?v:[]}catch{return []}};const save=a=>localStorage.setItem(KEY,JSON.stringify(a));const txt=(tag,value,cls)=>{let e=document.createElement(tag);e.textContent=value;if(cls)e.className=cls;return e};function show(page){['news','login','submit','review'].forEach(id=>$(id).classList.toggle('hide',id!==page));if(page==='news')render();if(page==='login')session();if(page==='review')review();window.scrollTo({top:0,behavior:'smooth'})}document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.page)));$('year').textContent=new Date().getFullYear();function session(){$('session').textContent=signedIn?'आप लॉगिन हैं। नीचे रिपोर्टर पैनल खोलें।':'लॉगिन करने पर रिपोर्टर पैनल खुलेगा।';$('logout').classList.toggle('hide',!signedIn);if(signedIn){let b=txt('button','रिपोर्टर पैनल खोलें','primary');b.type='button';b.onclick=()=>show('review');$('session').replaceChildren(txt('span','लॉगिन सफल। '),b)}}$('loginForm').addEventListener('submit',async e=>{e.preventDefault();const name=$('username').value.trim(),pass=$('password').value;if(name.length<3||pass.length<6)return;const enc=new TextEncoder().encode(pass);let digest=await crypto.subtle.digest('SHA-256',enc);let hash=Array.from(new Uint8Array(digest)).map(n=>n.toString(16).padStart(2,'0')).join('');let old;try{old=JSON.parse(localStorage.getItem(USER)||'null')}catch{}if(old&&(old.name!==name||old.hash!==hash)){$('session').textContent='नाम या पासवर्ड गलत है। इसी ब्राउज़र में पहले बनाए गए अकाउंट से लॉगिन करें।';return}if(!old)localStorage.setItem(USER,JSON.stringify({name,hash}));signedIn=true;$('author').value=name;show('review')});$('logout').onclick=()=>{signedIn=false;show('login')};$('storyForm').addEventListener('submit',async e=>{e.preventDefault();const f=$('photo').files[0];if(f&&f.size>1024*1024){$('submitStatus').textContent='फोटो 1 MB से छोटी चुनें।';return}let image='';if(f){image=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(f)})}let item={id:Date.now()+'-'+Math.random().toString(36).slice(2),author:$('author').value.trim(),headline:$('headline').value.trim(),place:$('place').value.trim(),detail:$('detail').value.trim(),image,date:new Date().toLocaleString('hi-IN'),published:false};try{save([item,...read()]);$('storyForm').reset();$('submitStatus').textContent='खबर सेव हो गई! रिपोर्टर लॉगिन करके इसे प्रकाशित करें।'}catch{$('submitStatus').textContent='स्टोरेज भर गया है। छोटी फोटो के साथ फिर कोशिश करें।'}});function render(){let box=$('stories');box.replaceChildren();let items=read().filter(x=>x.published);if(!items.length){box.append(txt('p','अभी कोई प्रकाशित खबर नहीं है।'));return}items.forEach(s=>box.append(storyNode(s,false)))}function storyNode(s,admin){let article=document.createElement('article');article.className='story';article.append(txt('span',s.published?'प्रकाशित':'प्रकाशन बाकी','pill'),txt('h3',s.headline),txt('div',`${s.place} • ${s.date} • ${s.author}`,'muted'));if(s.image&&/^data:image\//.test(s.image)){let im=document.createElement('img');im.src=s.image;im.alt='खबर की फोटो';article.append(im)}article.append(txt('p',s.detail));if(admin){let a=document.createElement('div');a.className='actions';if(!s.published){let b=txt('button','प्रकाशित करें','primary');b.onclick=()=>update(s.id,'publish');a.append(b)}let d=txt('button','हटाएँ','danger');d.onclick=()=>{if(confirm('क्या यह खबर हटानी है?'))update(s.id,'delete')};a.append(d);article.append(a)}return article}function update(id,action){if(!signedIn)return;let arr=read();if(action==='delete')arr=arr.filter(s=>s.id!==id);else arr=arr.map(s=>s.id===id?{...s,published:true}:s);save(arr);review()}function review(){if(!signedIn){show('login');return}let box=$('pending');box.replaceChildren();let arr=read();if(!arr.length){box.append(txt('p','अभी कोई खबर नहीं भेजी गई है।'));return}arr.forEach(s=>box.append(storyNode(s,true)))}render()})();
-</script></body></html> 
- 
+<html lang="hi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>तेज़ नज़र न्यूज़</title>
+<style>
+*{box-sizing:border-box}body{font-family:system-ui,'Noto Sans Devanagari',sans-serif;margin:0;background:#f5f6f8;color:#20242a}header{background:#b80019;color:white;padding:18px;text-align:center}header h1{margin:0;font-size:27px}nav{background:#242424;color:white;padding:12px;text-align:center}.wrap{max-width:850px;margin:22px auto;padding:0 14px}.panel{background:white;border-radius:12px;padding:20px;margin:16px 0;box-shadow:0 2px 10px #0001}input,textarea,button{font:inherit;width:100%;padding:12px;margin:7px 0;border:1px solid #ccc;border-radius:7px}textarea{min-height:115px}button{background:#b80019;color:white;border:0;cursor:pointer}button:disabled{opacity:.5;cursor:wait}.hidden{display:none}.muted{color:#666}.story{border-bottom:1px solid #ddd;padding:12px 0}.story:last-child{border:0}.story h3{margin:0 0 6px}.story p{white-space:pre-wrap;overflow-wrap:anywhere}#message{min-height:24px;color:#a00015}small{color:#555}
+</style>
+</head>
+<body>
+<header><h1>तेज़ नज़र न्यूज़</h1><div>TEZ NAZAR NEWS | जनता की आवाज़</div></header>
+<nav>ताज़ा खबरें • गिरिडीह • झारखंड</nav>
+<main class="wrap">
+<section class="panel"><h2>ताज़ा खबरें</h2><div id="stories">खबरें लोड हो रही हैं…</div></section>
+<section class="panel" id="loginPanel"><h2>रिपोर्टर लॉगिन</h2><form id="loginForm"><input id="email" type="email" placeholder="रिपोर्टर ईमेल" autocomplete="username" required><input id="password" type="password" placeholder="पासवर्ड" autocomplete="current-password" required><button id="loginBtn" type="submit">लॉगिन करें</button></form></section>
+<section class="panel hidden" id="reporterPanel"><h2>रिपोर्टर डैशबोर्ड</h2><p id="reporterName"></p><button id="logoutBtn" type="button">लॉगआउट</button><h3>नई खबर प्रकाशित करें</h3><form id="newsForm"><input id="headline" maxlength="160" placeholder="खबर का शीर्षक" required><textarea id="body" maxlength="10000" placeholder="खबर का विवरण" required></textarea><button id="publishBtn" type="submit">खबर प्रकाशित करें</button></form></section>
+<section class="panel"><p id="message" role="status" aria-live="polite"></p><small>केवल अधिकृत रिपोर्टर खबर प्रकाशित कर सकते हैं।</small></section>
+</main>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js';
+import { getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js';
+import { getFirestore,collection,addDoc,query,orderBy,limit,onSnapshot,serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js';
+// Firebase Console > Project settings > Your apps > Web app से अपनी config यहाँ डालें।
+const firebaseConfig = {
+  apiKey: 'PASTE_API_KEY',
+  authDomain: 'PASTE_PROJECT_ID.firebaseapp.com',
+  projectId: 'PASTE_PROJECT_ID',
+  storageBucket: 'PASTE_PROJECT_ID.firebasestorage.app',
+  messagingSenderId: 'PASTE_MESSAGING_SENDER_ID',
+  appId: 'PASTE_APP_ID'
+};
+const $=id=>document.getElementById(id), message=text=>$('message').textContent=text;
+const configured=!Object.values(firebaseConfig).some(v=>v.includes('PASTE_'));
+if(!configured){$('stories').textContent='Firebase सेटअप पूरा होने पर खबरें यहाँ दिखेंगी।';message('पहले Firebase Config भरें।');}
+else {
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+onAuthStateChanged(auth,user=>{
+ $('loginPanel').classList.toggle('hidden',!!user);
+ $('reporterPanel').classList.toggle('hidden',!user);
+ $('reporterName').textContent=user?`लॉगिन: ${user.email}`:'';
+});
+$('loginForm').addEventListener('submit',async e=>{
+ e.preventDefault();$('loginBtn').disabled=true;message('लॉगिन हो रहा है…');
+ try{await signInWithEmailAndPassword(auth,$('email').value.trim(),$('password').value);$('password').value='';message('लॉगिन सफल।');}
+ catch(err){message('लॉगिन नहीं हुआ। ईमेल, पासवर्ड और Firebase सेटिंग जाँचें।');}
+ finally{$('loginBtn').disabled=false;}
+});
+$('logoutBtn').addEventListener('click',async()=>{try{await signOut(auth);message('लॉगआउट सफल।');}catch(e){message('लॉगआउट नहीं हुआ।');}});
+$('newsForm').addEventListener('submit',async e=>{
+ e.preventDefault();const user=auth.currentUser;if(!user){message('पहले लॉगिन करें।');return;}
+ $('publishBtn').disabled=true;
+ try{await addDoc(collection(db,'news'),{title:$('headline').value.trim(),body:$('body').value.trim(),authorUid:user.uid,authorEmail:user.email,createdAt:serverTimestamp()});$('newsForm').reset();message('खबर प्रकाशित हो गई।');}
+ catch(err){message('खबर सेव नहीं हुई। Firestore नियम और अनुमति जाँचें।');}
+ finally{$('publishBtn').disabled=false;}
+});
+onSnapshot(query(collection(db,'news'),orderBy('createdAt','desc'),limit(50)),snapshot=>{
+ $('stories').replaceChildren();if(snapshot.empty){$('stories').textContent='अभी कोई खबर प्रकाशित नहीं हुई है।';return;}
+ snapshot.forEach(doc=>{const n=doc.data(),item=document.createElement('article'),title=document.createElement('h3'),body=document.createElement('p'),date=document.createElement('small');item.className='story';title.textContent=n.title||'';body.textContent=n.body||'';date.textContent=n.createdAt?.toDate?.().toLocaleString('hi-IN')||'';item.append(title,date,body);$('stories').append(item);});
+},err=>{$('stories').textContent='खबरें नहीं खुल सकीं। Firestore सेटअप जाँचें।';});
+}
+</script>
+</body>
+</html>
